@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HỆ THỐNG QUẢN LÝ SỐ HÓA - KHOA KINH TẾ - CÔNG NGHỆ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCodeJS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#035485',
+                            800: '#075985',
+                        },
+                        eco: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-[-100px] opacity-0 flex items-center p-4 bg-slate-900 text-white rounded-xl shadow-2xl space-x-3 text-xs sm:text-sm">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toastMsg">Thông báo</span>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-eco-500 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                            KHOA KINH TẾ - CÔNG NGHỆ
+                        </h1>
+                        <p class="text-xs text-slate-500 hidden sm:block">Trường Cao đẳng Hàng hải và Đường thủy I</p>
+                    </div>
+                </div>
+
+                <!-- Search & User Auth Actions -->
+                <div class="flex items-center space-x-3">
+                    <div class="relative hidden lg:block w-56">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                        </span>
+                        <input type="text" id="searchInput" onkeyup="handleQuickSearch()" placeholder="Tra cứu biểu mẫu, lịch..." class="w-full pl-9 pr-4 py-1.5 bg-slate-100 text-xs border-0 rounded-lg focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all outline-none">
+                    </div>
+
+                    <!-- User Account Pill -->
+                    <div id="userBadgeArea" class="flex items-center space-x-2"></div>
+                    
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-full md:w-64 flex-shrink-0 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm h-fit hidden md:block">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-3">Danh Mục Quản Lý</div>
+            <nav class="space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn active w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors bg-brand-50 text-brand-700">
+                    <i class="fa-solid fa-chart-pie w-5 text-center text-brand-600"></i>
+                    <span>Tổng quan số hóa</span>
+                </button>
+                <button onclick="switchTab('schedule')" id="nav-schedule" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
+                    <i class="fa-solid fa-calendar-week w-5 text-center text-indigo-500"></i>
+                    <span>Lịch công tác tuần</span>
+                </button>
+                <button onclick="switchTab('teaching')" id="nav-teaching" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
+                    <i class="fa-solid fa-chalkboard-user w-5 text-center text-sky-500"></i>
+                    <span>Phân công giảng dạy</span>
+                </button>
+                <button onclick="switchTab('students')" id="nav-students" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
+                    <i class="fa-solid fa-folder-open w-5 text-center text-amber-500"></i>
+                    <span>Hồ sơ HSSV (Bảo mật)</span>
+                </button>
+                <button onclick="switchTab('ecofund')" id="nav-ecofund" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
+                    <i class="fa-solid fa-seedling w-5 text-center text-eco-600"></i>
+                    <span>Quỹ Nhà Xanh & Học bổng</span>
+                </button>
+                <button onclick="switchTab('templates')" id="nav-templates" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
+                    <i class="fa-solid fa-file-lines w-5 text-center text-purple-500"></i>
+                    <span>Tủ biểu mẫu & Quy trình</span>
+                </button>
+                <button onclick="switchTab('security')" id="nav-security" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
+                    <i class="fa-solid fa-shield-halved w-5 text-center text-rose-500"></i>
+                    <span>Checklist Bảo mật số</span>
+                </button>
+                
+                <!-- Admin specific tab -->
+                <button onclick="switchTab('adminpanel')" id="nav-adminpanel" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors border border-rose-200 hidden">
+                    <i class="fa-solid fa-user-shield w-5 text-center text-rose-600"></i>
+                    <span>Bàn Quản Trị & GitHub Sync</span>
+                </button>
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+                <div class="bg-gradient-to-br from-brand-50 to-eco-50 rounded-xl p-3 border border-slate-200/60 text-center">
+                    <p class="text-[11px] font-semibold text-slate-700">Bộ mã QR Nhanh</p>
+                    <p class="text-[10px] text-slate-500 mb-2">Tạo QR tức thời từ link thư mục</p>
+                    <button onclick="openQRModal('Thư mục Gốc Drive Khoa KTCN', appData.config.driveRootUrl)" class="w-full bg-white text-xs font-medium text-slate-700 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 shadow-sm flex items-center justify-center space-x-1">
+                        <i class="fa-solid fa-qrcode text-brand-600"></i>
+                        <span>Mã QR Thư Mục Gốc</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 min-w-0">
+            
+            <!-- TAB: DASHBOARD -->
+            <div id="tab-dashboard" class="tab-content space-y-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-brand-800 via-brand-700 to-eco-700 rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold mb-3">
+                            <i class="fa-solid fa-shield-halved text-amber-300"></i>
+                            <span>Bảo Mật Băm SHA-256 & Mã Hóa AES-GCM</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold mb-2">Không Gian Làm Việc Số Khoa Kinh Tế - Công Nghệ</h2>
+                        <p class="text-brand-100 text-xs sm:text-sm max-w-2xl leading-relaxed">
+                            Mô hình quản lý tích hợp Google Workspace, Mã QR và Đồng bộ dữ liệu bảo mật GitHub. Mật khẩu và Token được bảo vệ an toàn trên thiết bị quản trị, không lưu lộ trên mã nguồn.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Notice for Guests -->
+                <div id="guestAlertBox" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start space-x-3 text-amber-800">
+                    <i class="fa-solid fa-circle-info text-amber-600 text-lg mt-0.5"></i>
+                    <div class="text-xs">
+                        <p class="font-bold">Bạn đang truy cập dưới quyền: Khách tham quan</p>
+                        <p class="mt-0.5 text-amber-700">Các liên kết dữ liệu nội bộ (Hồ sơ HSSV, biểu mẫu điểm, danh sách chi tiết) được bảo vệ. Vui lòng đăng nhập tài khoản Cán bộ/Lãnh đạo khoa để mở khóa đầy đủ chức năng.</p>
+                    </div>
+                </div>
+
+                <!-- WIDGETS STATS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500">Lịch họp / Công tác</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" id="statScheduleCount">0</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-indigo-600 mt-2 font-medium"><i class="fa-solid fa-clock mr-1"></i>Đồng bộ tự động</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500">Tiến độ hồ sơ HSSV</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1">94%</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-folder-check"></i>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-amber-600 mt-2 font-medium"><i class="fa-solid fa-lock mr-1"></i>Chế độ bảo mật cao</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500">Quỹ "Nhà Xanh"</p>
+                                <h3 class="text-2xl font-bold text-eco-700 mt-1" id="statEcoFundTotal">0đ</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-eco-50 text-eco-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-recycle"></i>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-eco-600 mt-2 font-medium"><i class="fa-solid fa-seedling mr-1"></i>Khuyến học & Môi trường</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500">Chuẩn hóa Bảo mật</p>
+                                <h3 class="text-2xl font-bold text-rose-600 mt-1" id="dashSecurityScore">6/7</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-shield-check"></i>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2 font-medium" id="dashSecurityStatus">Không lộ mật khẩu</p>
+                    </div>
+                </div>
+
+                <!-- MODULE CARDS -->
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fa-solid fa-network-wired text-brand-600 mr-2"></i> Truy Cập Các Phân Hệ Quản Trị
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="dashboardCardsContainer"></div>
+                </div>
+            </div>
+
+            <!-- TAB: LỊCH CÔNG TÁC -->
+            <div id="tab-schedule" class="tab-content hidden space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800">Lịch Công Tác Tuần Khoa KTCN</h3>
+                        <p class="text-xs text-slate-500">Lịch họp, duyệt chuyên đề và công tác chuyên môn theo tuần.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openQRModal('Lịch Công Tác Tuần', appData.config.scheduleSheetUrl)" class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium flex items-center">
+                            <i class="fa-solid fa-qrcode mr-1.5"></i> QR Lịch
+                        </button>
+                        <button onclick="secureAccess(appData.config.scheduleSheetUrl, 'Google Sheet Lịch Công Tác')" class="px-3 py-1.5 text-xs bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium flex items-center">
+                            <i class="fa-solid fa-up-right-from-square mr-1.5"></i> Mở Sheet Trực Tuyến
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="p-3 bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 flex justify-between">
+                        <span><i class="fa-solid fa-table mr-1 text-brand-600"></i> BẢNG LỊCH CÔNG TÁC TUẦN</span>
+                        <span class="text-eco-600 font-semibold"><i class="fa-solid fa-circle text-[8px] mr-1"></i> Trực tuyến</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
+                                <tr>
+                                    <th class="p-3">Thứ / Ngày</th>
+                                    <th class="p-3">Nội dung công việc</th>
+                                    <th class="p-3">Người phụ trách</th>
+                                    <th class="p-3">Địa điểm</th>
+                                    <th class="p-3">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100" id="scheduleTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PHÂN CÔNG GIẢNG DẠY -->
+            <div id="tab-teaching" class="tab-content hidden space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800">Phân Công Giảng Dạy & Thời Khóa Biểu</h3>
+                        <p class="text-xs text-slate-500">Tra cứu số tiết, lớp học phần và phòng học của CBGV.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openQRModal('Phân Công Giảng Dạy', appData.config.teachingSheetUrl)" class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium">
+                            <i class="fa-solid fa-qrcode mr-1"></i> QR Lịch Dạy
+                        </button>
+                        <button onclick="secureAccess(appData.config.teachingSheetUrl, 'Bảng Phân Công Giảng Dạy')" class="px-3 py-1.5 text-xs bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium">
+                            <i class="fa-solid fa-up-right-from-square mr-1"></i> Mở Google Sheet
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-500">
+                                <tr>
+                                    <th class="p-3">Lớp đảm nhận</th>
+                                    <th class="p-3">Môn học / Học phần</th>
+                                    <th class="p-3">Giảng viên</th>
+                                    <th class="p-3">Số tiết</th>
+                                    <th class="p-3">Phòng học</th>
+                                    <th class="p-3">Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100" id="teachingTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: HỒ SƠ HSSV -->
+            <div id="tab-students" class="tab-content hidden space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800">Quản Lý Hồ Sơ Điện Tử & Điểm Rèn Luyện HSSV</h3>
+                        <p class="text-xs text-slate-500">Thu nộp biên bản sinh hoạt lớp, đơn miễn giảm học phí qua Form & Drive bảo mật.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openQRModal('Form Nộp Hồ Sơ HSSV', appData.config.studentFormUrl)" class="px-3 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium">
+                            <i class="fa-solid fa-qrcode mr-1"></i> QR Form Nộp
+                        </button>
+                        <button onclick="secureAccess(appData.config.studentFolderUrl, 'Thư mục Drive Hồ sơ HSSV (Bảo mật)')" class="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium">
+                            <i class="fa-solid fa-folder-closed mr-1"></i> Thư Mục Drive (Nội Bộ)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3 flex items-center text-brand-700">
+                            <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Cổng Thu Nộp Hồ Sơ Trực Tuyến
+                        </h4>
+                        <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                            Cán bộ lớp hoặc sinh viên gửi hồ sơ trực tiếp qua Google Form để lưu vào thư mục phân quyền, không gửi file qua Zalo để tránh lộ lọt dữ liệu.
+                        </p>
+                        <button onclick="secureAccess(appData.config.studentFormUrl, 'Biểu Mẫu Thu Nộp Hồ Sơ')" class="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-xs rounded-xl border border-amber-200 transition-colors flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-file-arrow-up"></i>
+                            <span>Mở Google Form Nộp Hồ Sơ</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3 flex items-center text-eco-700">
+                            <i class="fa-solid fa-signature mr-2"></i> Quy Chuẩn Đặt Tên File (Bắt buộc)
+                        </h4>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                            <p class="text-slate-500 text-[11px]">Cú pháp thống nhất lưu trữ trên Google Drive:</p>
+                            <p class="text-brand-700 font-mono font-bold">[Năm]_[Tháng]_[LoạiHồSơ]_[TênLớp]</p>
+                            <p class="text-[11px] text-slate-500 pt-1 border-t border-slate-200">
+                                Ví dụ: <span class="font-mono text-slate-800 font-medium">2026_10_BienBanHopLop_CDKT22A.pdf</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: QUỸ NHÀ XANH -->
+            <div id="tab-ecofund" class="tab-content hidden space-y-4">
+                <div class="bg-gradient-to-r from-eco-800 to-eco-600 p-6 rounded-2xl text-white shadow-md">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold">Sáng Kiến Xanh & Khuyến Học</span>
+                            <h3 class="text-xl font-bold mt-2">Mô Hình Quỹ "Nhà Xanh" Khoa KTCN</h3>
+                            <p class="text-eco-100 text-xs mt-1 max-w-xl">
+                                Thu gom, phân loại phế liệu & gây quỹ khuyến học hỗ trợ HSSV có hoàn cảnh khó khăn vươn lên trong học tập.
+                            </p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/20 text-right">
+                            <p class="text-[11px] text-eco-100 uppercase tracking-wider">Tổng Quỹ Hiện Tại</p>
+                            <p class="text-2xl sm:text-3xl font-extrabold text-white" id="fundTotalDisplay">0 VNĐ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="ecoFundWidgets"></div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-xs">Bảng Kê Khai Minh Bạch Chi Tiết</h4>
+                        <p class="text-[11px] text-slate-500">Mọi khoản đóng góp và quy đổi đều được ghi nhật ký thời gian thực.</p>
+                    </div>
+                    <button onclick="secureAccess(appData.config.ecoSheetUrl, 'Sổ Quỹ Nhà Xanh Minh Bạch')" class="px-3 py-1.5 text-xs bg-eco-600 hover:bg-eco-700 text-white rounded-lg font-medium">
+                        <i class="fa-solid fa-file-excel mr-1"></i> Xem Sổ Quỹ Đầy Đủ
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB: TỦ BIỂU MẪU -->
+            <div id="tab-templates" class="tab-content hidden space-y-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-800">Kho Biểu Mẫu Hành Chính & Mẫu Kế Hoạch</h3>
+                        <p class="text-xs text-slate-500">Tải các biểu mẫu chuẩn ISO dành cho giảng viên và sinh viên.</p>
+                    </div>
+                    <button onclick="secureAccess(appData.config.templateFolderUrl, 'Thư mục Biểu mẫu chuẩn')" class="px-3 py-1.5 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium">
+                        <i class="fa-solid fa-folder mr-1"></i> Mở Thư Mục Biểu Mẫu
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="templateListContainer"></div>
+            </div>
+
+            <!-- TAB: CHECKLIST BẢO MẬT -->
+            <div id="tab-security" class="tab-content hidden space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-800 flex items-center text-base">
+                                <i class="fa-solid fa-shield-halved text-rose-500 mr-2"></i> Quy Trình Bảo Vệ Dữ Liệu Nội Bộ
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Quy tắc bắt buộc khi xử lý thông tin cá nhân HSSV và văn bản chuyên môn.</p>
+                        </div>
+                        <span id="securityProgressBadge" class="text-xs font-bold bg-rose-100 text-rose-700 px-3 py-1 rounded-full">
+                            Tiến độ: 85%
+                        </span>
+                    </div>
+
+                    <div class="space-y-3" id="securityChecklist"></div>
+                </div>
+            </div>
+
+            <!-- TAB: BÀN QUẢN TRỊ ADMIN & GITHUB SYNC (AES-GCM ENCRYPTED) -->
+            <div id="tab-adminpanel" class="tab-content hidden space-y-6">
+                <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2.5 py-0.5 bg-rose-500 text-white text-[11px] font-bold rounded-full uppercase">Khu vực Lãnh đạo & Quản trị viên</span>
+                                <span class="px-2.5 py-0.5 bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-mono rounded-full flex items-center">
+                                    <i class="fa-solid fa-lock text-emerald-400 mr-1"></i> Khóa Mã Hóa AES-GCM (RAM)
+                                </span>
+                            </div>
+                            <h3 class="text-xl font-bold mt-2">Bàn Quản Trị & Đồng Bộ Dữ Liệu Lên GitHub</h3>
+                            <p class="text-slate-400 text-xs mt-1">Mã Token được mã hóa an toàn bằng mật khẩu Admin, chỉ giải mã trên RAM khi thao tác.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="openChangePasswordModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl transition flex items-center">
+                                <i class="fa-solid fa-key mr-1.5"></i> Đổi Mật Khẩu Admin
+                            </button>
+                            <button onclick="downloadJSONFile()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold rounded-xl transition flex items-center">
+                                <i class="fa-solid fa-download mr-1.5"></i> Tải data.json
+                            </button>
+                            <button onclick="syncToGitHubAPI()" id="btnSyncGitHub" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
+                                <i class="fa-brands fa-github mr-1.5 text-sm"></i> Đẩy Lên GitHub
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cấu hình GitHub API có mã hóa AES-GCM -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h4 class="font-bold text-sm text-slate-800 border-b pb-2 flex items-center justify-between">
+                        <span class="flex items-center"><i class="fa-brands fa-github text-slate-900 mr-2 text-base"></i> 1. Cấu Hình Kết Nối Kho Chứa GitHub (Bảo Mật AES-256)</span>
+                        <span id="tokenStatusBadge" class="text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                            <i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Đang kiểm tra mã hóa
+                        </span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">GitHub Username / Org:</label>
+                            <input type="text" id="gh_owner" placeholder="vd: hanhanthuthuy-star" class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Tên Repository:</label>
+                            <input type="text" id="gh_repo" placeholder="vd: quan-ly-khoa-ktcn" class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Nhánh (Branch):</label>
+                            <input type="text" id="gh_branch" placeholder="main" value="main" class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">GitHub Token (PAT):</label>
+                            <input type="password" id="gh_token" placeholder="Dán mã ghp_... vào đây" class="w-full p-2 border rounded-lg">
+                        </div>
+                    </div>
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 flex items-start space-x-2">
+                        <i class="fa-solid fa-shield-halved text-brand-600 mt-0.5"></i>
+                        <div>
+                            <p class="font-bold text-slate-800">Cơ chế bảo mật Tuyệt đối (Không lộ mã nguồn):</p>
+                            <p>Không có bất kỳ mật khẩu hay Token nào nằm trên GitHub. Mật khẩu Admin chỉ lưu dạng băm SHA-256 trên trình duyệt của bạn; Token được mã hóa chuẩn quân đội AES-GCM 256-bit bằng chính Mật khẩu Admin của bạn.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form chỉnh sửa liên kết Google Workspace -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h4 class="font-bold text-sm text-slate-800 border-b pb-2 flex items-center">
+                        <i class="fa-brands fa-google-drive text-brand-600 mr-2 text-base"></i> 2. Cấu Hình Đường Dẫn Google Workspace
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Link Thư Mục Gốc Google Drive:</label>
+                            <input type="text" id="cfg_driveRootUrl" class="w-full p-2 border rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Link Google Sheet Lịch Công Tác:</label>
+                            <input type="text" id="cfg_scheduleSheetUrl" class="w-full p-2 border rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Link Google Sheet Phân Công Giảng Dạy:</label>
+                            <input type="text" id="cfg_teachingSheetUrl" class="w-full p-2 border rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Link Google Form Nộp Hồ Sơ HSSV:</label>
+                            <input type="text" id="cfg_studentFormUrl" class="w-full p-2 border rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Link Thư Mục Drive Lưu Hồ Sơ HSSV:</label>
+                            <input type="text" id="cfg_studentFolderUrl" class="w-full p-2 border rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Link Google Sheet Quỹ Nhà Xanh:</label>
+                            <input type="text" id="cfg_ecoSheetUrl" class="w-full p-2 border rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form thêm lịch công tác nhanh -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h4 class="font-bold text-sm text-slate-800 border-b pb-2 flex items-center">
+                        <i class="fa-solid fa-calendar-plus text-indigo-600 mr-2 text-base"></i> 3. Thêm Sự Kiện Lịch Công Tác Tuần
+                    </h4>
+                    <form onsubmit="handleAddSchedule(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+                        <div>
+                            <label class="font-medium text-slate-600 block mb-1">Thứ / Ngày</label>
+                            <input type="text" id="new_sch_day" placeholder="Thứ 5 (23/10)" required class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="font-medium text-slate-600 block mb-1">Nội dung công việc</label>
+                            <input type="text" id="new_sch_task" placeholder="Họp chuyên môn..." required class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="font-medium text-slate-600 block mb-1">Người phụ trách</label>
+                            <input type="text" id="new_sch_owner" placeholder="Tổ Nữ công" required class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="font-medium text-slate-600 block mb-1">Địa điểm</label>
+                            <input type="text" id="new_sch_location" placeholder="P. Họp Khoa" required class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div class="md:col-span-5 flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
+                                <i class="fa-solid fa-plus mr-1"></i> Thêm vào Danh Sách Lịch
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Cập nhật số liệu Quỹ Nhà Xanh -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+                    <h4 class="font-bold text-sm text-slate-800 border-b pb-2 flex items-center">
+                        <i class="fa-solid fa-recycle text-eco-600 mr-2 text-base"></i> 4. Cập Nhật Số Liệu Quỹ Nhà Xanh
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Khối lượng Giấy vụn (Kg):</label>
+                            <input type="number" id="cfg_paperKg" class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Số lượng Vỏ chai / Lon (Chiếc):</label>
+                            <input type="number" id="cfg_bottlesCount" class="w-full p-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">Tiền ủng hộ trực tiếp (VNĐ):</label>
+                            <input type="number" id="cfg_donateMoney" class="w-full p-2 border rounded-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL ĐĂNG NHẬP (TỰ ĐỘNG PHÁT HIỆN THIẾT LẬP LẦN ĐẦU) -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-2 text-xl">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 id="loginModalTitle" class="font-bold text-slate-800 text-lg">Đăng Nhập Hệ Thống</h3>
+                <p id="loginModalSubtitle" class="text-xs text-slate-500">Dành cho CBVCLĐ & Lãnh đạo Khoa KTCN</p>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Tài khoản</label>
+                    <input type="text" id="loginUsername" required placeholder="admin hoặc cbvc" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Mật khẩu</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                
+                <div id="loginSetupNotice" class="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-[11px] text-amber-800 leading-snug">
+                    <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                    <span><strong>Thiết lập lần đầu:</strong> Nếu bạn chưa từng đặt mật khẩu, hãy nhập mật khẩu bạn muốn dùng (tối thiểu 6 ký tự) để hệ thống tự động ghi nhớ và bảo mật cho riêng bạn.</span>
+                </div>
+
+                <button type="submit" id="btnLoginSubmit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-md transition">
+                    Đăng Nhập
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ĐỔI MẬT KHẨU ADMIN -->
+    <div id="changePasswordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeChangePasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-2 text-xl">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <h3 class="font-bold text-slate-800 text-lg">Đổi Mật Khẩu Admin</h3>
+                <p class="text-xs text-slate-500">Mật khẩu mới sẽ tự động tái mã hóa GitHub Token</p>
+            </div>
+
+            <form onsubmit="handleChangePasswordSubmit(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Mật khẩu hiện tại</label>
+                    <input type="password" id="oldPassword" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                </div>
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Mật khẩu mới</label>
+                    <input type="password" id="newPassword" required placeholder="Tối thiểu 6 ký tự" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                </div>
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Xác nhận mật khẩu mới</label>
+                    <input type="password" id="confirmNewPassword" required placeholder="Nhập lại mật khẩu mới" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-md transition">
+                    Cập Nhật Mật Khẩu
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL HIỂN THỊ MÃ QR -->
+    <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative text-center">
+            <button onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-2 text-xl">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <h3 id="qrModalTitle" class="font-bold text-slate-800 text-base mb-1">Mã QR Truy Cập Nhanh</h3>
+            <p class="text-xs text-slate-500 mb-4">Quét mã bằng Camera điện thoại hoặc Zalo để mở trên thiết bị di động.</p>
+            
+            <div class="flex justify-center bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-4" id="qrcodeCanvas"></div>
+            
+            <div class="space-y-2">
+                <button onclick="copyQRLink()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center justify-center">
+                    <i class="fa-solid fa-copy mr-1.5"></i> Sao Chép Đường Dẫn
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            <p class="font-medium">© 2026 Ban Nữ công – Khoa Kinh tế - Công nghệ | Trường Cao đẳng Hàng hải và Đường thủy I</p>
+            <p class="text-[11px] text-slate-400 mt-1">Sản phẩm tham dự Cuộc thi: "Nữ CBVCLĐ MIC1 Làm chủ công nghệ số"</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT & BẢO MẬT SHA-256 + AES-GCM (KHÔNG CHỨA MẬT KHẨU CỨNG) -->
+    <script>
+        let appData = {
+            config: {
+                driveRootUrl: "https://drive.google.com/drive/folders/Khoa_KTCN_HoSoSo_2026",
+                scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_EXAMPLE_SCHEDULE/pubhtml",
+                teachingSheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_EXAMPLE_TEACHING/pubhtml",
+                studentFormUrl: "https://forms.google.com/d/e/1FAIpQLSc_FORM_HSSV_EXAMPLE/viewform",
+                studentFolderUrl: "https://drive.google.com/drive/folders/03_Ho_so_HSSV_SECURE",
+                ecoSheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_EXAMPLE_ECOFUND/pubhtml",
+                templateFolderUrl: "https://drive.google.com/drive/folders/06_Van_ban_hanh_chinh"
+            },
+            ecoFund: { paperKg: 140, paperPrice: 5000, bottlesCount: 1750, bottlePrice: 500, donateMoney: 2500000 },
+            schedules: [
+                { day: "Thứ 2 (20/10)", task: "Gặp mặt kỷ niệm 96 năm Ngày TL Hội LHPN VN", owner: "Ban Nữ Công Khoa", location: "Hội trường B", status: "Hoàn thành" },
+                { day: "Thứ 3 (21/10)", task: "Họp duyệt đề cương chi tiết học phần số hóa", owner: "Đ/c Thu Hà", location: "Phòng họp Khoa", status: "Đang tiến hành" },
+                { day: "Thứ 4 (22/10)", task: "Kiểm tra tiến độ nộp hồ sơ HSSV miễn giảm học phí", owner: "GVCN các lớp", location: "Văn phòng Khoa", status: "Chưa bắt đầu" }
+            ],
+            teachings: [
+                { classCode: "CĐ KT22A", subject: "Kế toán Doanh nghiệp", teacher: "Nguyễn Thị Mai", credits: "45 tiết", room: "Phòng A201", note: "Tuần 8" },
+                { classCode: "CĐ CNTT23B", subject: "Quản trị Cơ sở dữ liệu", teacher: "Trần Văn Hùng", credits: "60 tiết", room: "Lab 02", note: "Thực hành" }
+            ],
+            templates: [
+                { title: "Mẫu Biên bản Họp Tổ Nữ công / Khoa", type: "Word (.docx)", icon: "fa-file-word", color: "text-blue-600 bg-blue-50", url: "https://docs.google.com" },
+                { title: "Mẫu Báo cáo Tiến độ Giảng dạy", type: "Excel (.xlsx)", icon: "fa-file-excel", color: "text-emerald-600 bg-emerald-50", url: "https://docs.google.com" }
+            ],
+            securityChecklist: [
+                { text: "1. Bật xác thực hai lớp (2FA) cho tài khoản Google của khoa.", desc: "Bảo vệ tài khoản tránh bị chiếm quyền.", checked: true },
+                { text: "2. Không gửi file chứa thông tin HSSV qua Zalo/Facebook.", desc: "Tuân thủ Nghị định bảo vệ dữ liệu cá nhân.", checked: true },
+                { text: "3. Chỉ chia sẻ link Drive ở chế độ 'Restricted'.", desc: "Không bật Anyone with link với dữ liệu mật.", checked: true }
+            ]
+        };
+
+        let currentUser = JSON.parse(sessionStorage.getItem('khoa_user')) || { role: 'guest', name: 'Khách tham quan' };
+        let currentQRUrl = '';
+        let decryptedAdminToken = ''; // Chỉ lưu tạm trong RAM của Admin khi đăng nhập
+        let currentAdminPasswordInSession = ''; // Lưu tạm trong RAM để tái mã hóa khi cần
+
+        // ==============================================================
+        // BĂM SHA-256 VÀ MÃ HÓA AES-GCM 256-BIT BẢO MẬT (WEB CRYPTO API)
+        // ==============================================================
+        async function sha256(str) {
+            const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+            return Array.prototype.map.call(new Uint8Array(buf), x => (('0' + x.toString(16)).slice(-2))).join('');
+        }
+
+        async function deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                "raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveKey"]
+            );
+            return await crypto.subtle.deriveKey(
+                {
+                    name: "PBKDF2",
+                    salt: salt,
+                    iterations: 100000,
+                    hash: "SHA-256"
+                },
+                keyMaterial,
+                { name: "AES-GCM", length: 256 },
+                false,
+                ["encrypt", "decrypt"]
+            );
+        }
+
+        async function encryptData(plainText, password) {
+            if (!plainText || !password) return '';
+            const enc = new TextEncoder();
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
+
+            const encryptedBuffer = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv },
+                key,
+                enc.encode(plainText)
+            );
+
+            const encryptedBytes = new Uint8Array(encryptedBuffer);
+            const combined = new Uint8Array(salt.length + iv.length + encryptedBytes.length);
+            combined.set(salt, 0);
+            combined.set(iv, salt.length);
+            combined.set(encryptedBytes, salt.length + iv.length);
+
+            let binary = '';
+            for (let i = 0; i < combined.length; i++) {
+                binary += String.fromCharCode(combined[i]);
+            }
+            return btoa(binary);
+        }
+
+        async function decryptData(cipherBase64, password) {
+            if (!cipherBase64 || !password) return '';
+            try {
+                const binary = atob(cipherBase64);
+                const combined = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    combined[i] = binary.charCodeAt(i);
+                }
+
+                const salt = combined.slice(0, 16);
+                const iv = combined.slice(16, 28);
+                const ciphertext = combined.slice(28);
+
+                const key = await deriveKey(password, salt);
+                const decryptedBuffer = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv: iv },
+                    key,
+                    ciphertext
+                );
+                return new TextDecoder().decode(decryptedBuffer);
+            } catch (err) {
+                return '';
+            }
+        }
+
+        // ==============================================================
+        // TẢI DỮ LIỆU ĐỒNG BỘ GITHUB & GIAO DIỆN
+        // ==============================================================
+        async function loadDataFromGitHub() {
+            try {
+                const response = await fetch('data.json?t=' + new Date().getTime());
+                if(response.ok) {
+                    appData = await response.json();
+                } else {
+                    const localData = localStorage.getItem('khoa_ktcn_data');
+                    if(localData) appData = JSON.parse(localData);
+                }
+            } catch (err) {
+                const localData = localStorage.getItem('khoa_ktcn_data');
+                if(localData) appData = JSON.parse(localData);
+            }
+            renderAll();
+        }
+
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMsg.innerText = msg;
+            toastIcon.className = isSuccess ? "fa-solid fa-circle-check text-emerald-400 text-lg" : "fa-solid fa-triangle-exclamation text-rose-400 text-lg";
+            
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-[-100px]', 'opacity-0'); }, 3500);
+        }
+
+        function switchTab(tabId) {
+            if(tabId === 'adminpanel' && currentUser.role !== 'admin') {
+                showToast("Bạn cần đăng nhập quyền Admin để truy cập!", false);
+                openLoginModal();
+                return;
+            }
+
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            const activeTab = document.getElementById('tab-' + tabId);
+            if(activeTab) activeTab.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-brand-50', 'text-brand-700');
+                btn.classList.add('text-slate-600');
+            });
+            
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn) {
+                activeBtn.classList.add('active', 'bg-brand-50', 'text-brand-700');
+                activeBtn.classList.remove('text-slate-600');
+            }
+
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('hidden');
+            }
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        }
+
+        function secureAccess(url, docName = "Tài liệu nội bộ") {
+            if (currentUser.role === 'guest') {
+                showToast(`🔒 "${docName}" là tài liệu nội bộ. Vui lòng đăng nhập!`, false);
+                openLoginModal();
+            } else {
+                window.open(url, '_blank');
+            }
+        }
+
+        function renderUserAuthUI() {
+            const container = document.getElementById('userBadgeArea');
+            const adminNav = document.getElementById('nav-adminpanel');
+            const guestAlert = document.getElementById('guestAlertBox');
+
+            if(currentUser.role === 'guest') {
+                container.innerHTML = `
+                    <button onclick="openLoginModal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        <span>Đăng Nhập</span>
+                    </button>
+                `;
+                if(adminNav) adminNav.classList.add('hidden');
+                if(guestAlert) guestAlert.classList.remove('hidden');
+            } else {
+                const roleBadge = currentUser.role === 'admin' 
+                    ? '<span class="px-1.5 py-0.5 text-[10px] bg-rose-100 text-rose-700 font-bold rounded">Lãnh Đạo / Admin</span>' 
+                    : '<span class="px-1.5 py-0.5 text-[10px] bg-brand-100 text-brand-700 font-bold rounded">Cán Bộ Khoa</span>';
+                
+                container.innerHTML = `
+                    <div class="flex items-center space-x-2 bg-slate-100 py-1 px-2.5 rounded-xl border border-slate-200 text-xs">
+                        <i class="fa-solid fa-circle-user text-brand-600 text-base"></i>
+                        <div class="text-left hidden sm:block">
+                            <p class="font-bold text-slate-800 leading-none">${currentUser.name}</p>
+                            ${roleBadge}
+                        </div>
+                        <button onclick="handleLogout()" title="Đăng xuất" class="p-1 text-slate-400 hover:text-rose-600 ml-1">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                    </div>
+                `;
+                
+                if(currentUser.role === 'admin' && adminNav) {
+                    adminNav.classList.remove('hidden');
+                } else if(adminNav) {
+                    adminNav.classList.add('hidden');
+                }
+                if(guestAlert) guestAlert.classList.add('hidden');
+            }
+        }
+
+        // ==============================================================
+        // QUẢN LÝ ĐĂNG NHẬP & THIẾT LẬP MẬT KHẨU BAN ĐẦU
+        // ==============================================================
+        function openLoginModal() {
+            const hasAdminPwd = localStorage.getItem('admin_pwd_hash');
+            const noticeBox = document.getElementById('loginSetupNotice');
+            if(!hasAdminPwd) {
+                noticeBox.classList.remove('hidden');
+            } else {
+                noticeBox.classList.add('hidden');
+            }
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
+
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const p = document.getElementById('loginPassword').value;
+
+            const storedAdminHash = localStorage.getItem('admin_pwd_hash');
+            const storedMemberHash = localStorage.getItem('member_pwd_hash');
+            const enteredHash = await sha256(p);
+
+            // 1. ĐĂNG NHẬP ADMIN
+            if(u === 'admin') {
+                if(!storedAdminHash) {
+                    // LẦN ĐẦU TIÊN: Thiết lập mật khẩu Admin
+                    if(p.length < 6) {
+                        showToast("Mật khẩu Admin ban đầu phải có ít nhất 6 ký tự!", false);
+                        return;
+                    }
+                    localStorage.setItem('admin_pwd_hash', enteredHash);
+                    currentAdminPasswordInSession = p;
+                    currentUser = { role: 'admin', name: 'Đ/c Tổ Trưởng Nữ Công' };
+                    sessionStorage.setItem('khoa_user', JSON.stringify(currentUser));
+                    closeLoginModal();
+                    renderUserAuthUI();
+                    populateAdminForm();
+                    showToast("Đã khởi tạo Mật khẩu Admin và đăng nhập thành công!");
+                    return;
+                } else if(enteredHash === storedAdminHash) {
+                    currentAdminPasswordInSession = p;
+                    currentUser = { role: 'admin', name: 'Đ/c Tổ Trưởng Nữ Công' };
+                    sessionStorage.setItem('khoa_user', JSON.stringify(currentUser));
+                    
+                    // Giải mã Token nếu có
+                    const encryptedToken = localStorage.getItem('gh_token_encrypted');
+                    if(encryptedToken) {
+                        decryptedAdminToken = await decryptData(encryptedToken, p);
+                    }
+
+                    closeLoginModal();
+                    renderUserAuthUI();
+                    populateAdminForm();
+                    showToast("Đăng nhập quyền Quản trị viên (Admin) thành công!");
+                    return;
+                } else {
+                    showToast("Mật khẩu Admin không chính xác!", false);
+                    return;
+                }
+            } 
+            // 2. ĐĂNG NHẬP CÁN BỘ / GIẢNG VIÊN
+            else if(u === 'cbvc') {
+                if(!storedMemberHash) {
+                    // Mặc định lần đầu chấp nhận mật khẩu của cán bộ và ghi nhớ
+                    localStorage.setItem('member_pwd_hash', enteredHash);
+                } else if(enteredHash !== storedMemberHash) {
+                    showToast("Mật khẩu Cán bộ không chính xác!", false);
+                    return;
+                }
+                currentUser = { role: 'member', name: 'Nữ CBVCLĐ Khoa' };
+                sessionStorage.setItem('khoa_user', JSON.stringify(currentUser));
+                closeLoginModal();
+                renderUserAuthUI();
+                showToast("Đăng nhập quyền Cán bộ giảng viên thành công!");
+            } else {
+                showToast("Tên tài khoản không tồn tại (Nhập admin hoặc cbvc)!", false);
+            }
+        }
+
+        function handleLogout() {
+            currentUser = { role: 'guest', name: 'Khách tham quan' };
+            decryptedAdminToken = '';
+            currentAdminPasswordInSession = '';
+            sessionStorage.removeItem('khoa_user');
+            renderUserAuthUI();
+            switchTab('dashboard');
+            showToast("Đã đăng xuất và xóa phiên mã hóa bảo mật.");
+        }
+
+        // ==============================================================
+        // MODAL ĐỔI MẬT KHẨU ADMIN
+        // ==============================================================
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.remove('hidden');
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.add('hidden');
+        }
+
+        async function handleChangePasswordSubmit(e) {
+            e.preventDefault();
+            const oldP = document.getElementById('oldPassword').value;
+            const newP = document.getElementById('newPassword').value;
+            const confirmP = document.getElementById('confirmNewPassword').value;
+
+            const storedAdminHash = localStorage.getItem('admin_pwd_hash');
+            const oldHash = await sha256(oldP);
+
+            if(oldHash !== storedAdminHash) {
+                showToast("Mật khẩu hiện tại không đúng!", false);
+                return;
+            }
+
+            if(newP.length < 6) {
+                showToast("Mật khẩu mới phải có ít nhất 6 ký tự!", false);
+                return;
+            }
+
+            if(newP !== confirmP) {
+                showToast("Xác nhận mật khẩu mới không khớp!", false);
+                return;
+            }
+
+            // Cập nhật băm mật khẩu mới
+            const newHash = await sha256(newP);
+            localStorage.setItem('admin_pwd_hash', newHash);
+            currentAdminPasswordInSession = newP;
+
+            // Tái mã hóa lại Token bằng mật khẩu mới nếu đã có Token trong RAM
+            if(decryptedAdminToken) {
+                const newEncrypted = await encryptData(decryptedAdminToken, newP);
+                localStorage.setItem('gh_token_encrypted', newEncrypted);
+            }
+
+            closeChangePasswordModal();
+            e.target.reset();
+            showToast("Đã đổi Mật khẩu Admin thành công và tái mã hóa dữ liệu an toàn!");
+        }
+
+        function renderScheduleTable() {
+            const tbody = document.getElementById('scheduleTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('statScheduleCount').innerText = appData.schedules.length;
+
+            appData.schedules.forEach(item => {
+                let badgeClass = "bg-slate-100 text-slate-600";
+                if(item.status === 'Hoàn thành') badgeClass = "bg-emerald-100 text-emerald-700";
+                if(item.status === 'Đang tiến hành') badgeClass = "bg-amber-100 text-amber-700";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3 font-semibold text-slate-800">${item.day}</td>
+                        <td class="p-3">${item.task}</td>
+                        <td class="p-3 font-medium text-slate-700">${item.owner}</td>
+                        <td class="p-3">${item.location}</td>
+                        <td class="p-3"><span class="px-2.5 py-0.5 rounded-full ${badgeClass} font-semibold text-[10px]">${item.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderTeachingTable() {
+            const tbody = document.getElementById('teachingTableBody');
+            tbody.innerHTML = '';
+            appData.teachings.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3 font-bold text-brand-700">${item.classCode}</td>
+                        <td class="p-3 font-medium text-slate-800">${item.subject}</td>
+                        <td class="p-3">${item.teacher}</td>
+                        <td class="p-3 font-semibold">${item.credits}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-mono">${item.room}</span></td>
+                        <td class="p-3 text-slate-400">${item.note || ''}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderEcoFund() {
+            const f = appData.ecoFund;
+            const paperTotal = f.paperKg * f.paperPrice;
+            const bottleTotal = f.bottlesCount * f.bottlePrice;
+            const total = paperTotal + bottleTotal + f.donateMoney;
+
+            const formatMoney = (num) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
+
+            document.getElementById('statEcoFundTotal').innerText = formatMoney(total);
+            document.getElementById('fundTotalDisplay').innerText = formatMoney(total);
+
+            document.getElementById('ecoFundWidgets').innerHTML = `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 text-center shadow-sm">
+                    <div class="w-10 h-10 bg-eco-50 text-eco-600 rounded-full flex items-center justify-center mx-auto mb-2 text-base">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-xs">Giấy Vụn & Tài Liệu</h4>
+                    <p class="text-2xl font-bold text-eco-600 my-1">${f.paperKg} kg</p>
+                    <p class="text-[11px] text-slate-400">Quy đổi: ${formatMoney(paperTotal)}</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 text-center shadow-sm">
+                    <div class="w-10 h-10 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-2 text-base">
+                        <i class="fa-solid fa-bottle-water"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-xs">Vỏ Chai Nhựa / Lon</h4>
+                    <p class="text-2xl font-bold text-sky-600 my-1">${f.bottlesCount} chiếc</p>
+                    <p class="text-[11px] text-slate-400">Quy đổi: ${formatMoney(bottleTotal)}</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 text-center shadow-sm">
+                    <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 text-base">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-xs">Ủng Hộ Khuyến Học</h4>
+                    <p class="text-2xl font-bold text-amber-600 my-1">${formatMoney(f.donateMoney)}</p>
+                    <p class="text-[11px] text-slate-400">Từ CBVCLĐ & Nhà hảo tâm</p>
+                </div>
+            `;
+        }
+
+        function renderTemplates() {
+            const container = document.getElementById('templateListContainer');
+            container.innerHTML = '';
+            appData.templates.forEach(t => {
+                container.innerHTML += `
+                    <div onclick="secureAccess('${t.url}', '${t.title}')" class="bg-white p-4 rounded-2xl border border-slate-200 flex items-center space-x-3 hover:border-brand-300 hover:shadow-md transition-all cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl ${t.color} flex items-center justify-center text-lg flex-shrink-0">
+                            <i class="fa-solid ${t.icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-slate-800 text-xs truncate">${t.title}</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">${t.type}</p>
+                        </div>
+                        <span class="text-slate-400 hover:text-brand-600 p-2"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                    </div>
+                `;
+            });
+        }
+
+        function renderSecurityChecklist() {
+            const container = document.getElementById('securityChecklist');
+            container.innerHTML = '';
+            appData.securityChecklist.forEach((item, idx) => {
+                container.innerHTML += `
+                    <label class="flex items-start space-x-3 p-3 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleSecurityItem(${idx})" class="mt-0.5 rounded text-brand-600 focus:ring-brand-500 w-4 h-4">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-800">${item.text}</p>
+                            <p class="text-[11px] text-slate-500">${item.desc}</p>
+                        </div>
+                    </label>
+                `;
+            });
+            updateSecurityProgress();
+        }
+
+        function toggleSecurityItem(index) {
+            appData.securityChecklist[index].checked = !appData.securityChecklist[index].checked;
+            updateSecurityProgress();
+        }
+
+        function updateSecurityProgress() {
+            const list = appData.securityChecklist;
+            const checkedCount = list.filter(i => i.checked).length;
+            const percent = Math.round((checkedCount / list.length) * 100);
+
+            document.getElementById('dashSecurityScore').innerText = `${checkedCount}/${list.length}`;
+            document.getElementById('dashSecurityStatus').innerText = percent === 100 ? 'Tuân thủ tuyệt đối!' : `Đạt ${percent}% tiêu chuẩn`;
+
+            const badge = document.getElementById('securityProgressBadge');
+            if(badge) {
+                badge.innerText = `Tiến độ: ${percent}%`;
+                badge.className = percent === 100 
+                    ? "text-xs font-bold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full"
+                    : "text-xs font-bold bg-rose-100 text-rose-700 px-3 py-1 rounded-full";
+            }
+        }
+
+        function renderDashboardCards() {
+            const c = appData.config;
+            const container = document.getElementById('dashboardCardsContainer');
+            const cards = [
+                { title: "Lịch Công Tác Tuần", desc: "Theo dõi lịch họp, công việc của khoa", icon: "fa-calendar-days", color: "text-indigo-600 bg-indigo-50", tab: "schedule", url: c.scheduleSheetUrl, lock: false },
+                { title: "Phân Công Giảng Dạy", desc: "Thời khóa biểu, lớp và số tiết giảng viên", icon: "fa-chalkboard-user", color: "text-sky-600 bg-sky-50", tab: "teaching", url: c.teachingSheetUrl, lock: false },
+                { title: "Hồ Sơ HSSV & Nộp File", desc: "Tiếp nhận biên bản, hồ sơ rèn luyện", icon: "fa-user-graduate", color: "text-amber-600 bg-amber-50", tab: "students", url: c.studentFolderUrl, lock: true },
+                { title: "Quỹ Nhà Xanh", desc: "Phân loại phế liệu & học bổng khuyến học", icon: "fa-seedling", color: "text-eco-600 bg-eco-50", tab: "ecofund", url: c.ecoSheetUrl, lock: false },
+                { title: "Tủ Biểu Mẫu Hành Chính", desc: "Kho mẫu kế hoạch, giáo án, đề thi ISO", icon: "fa-box-archive", color: "text-purple-600 bg-purple-50", tab: "templates", url: c.templateFolderUrl, lock: true },
+                { title: "Checklist Bảo Mật Số", desc: "Quy tắc an toàn và phòng tránh lừa đảo", icon: "fa-shield-halved", color: "text-rose-600 bg-rose-50", tab: "security", url: c.driveRootUrl, lock: false }
+            ];
+
+            container.innerHTML = '';
+            cards.forEach(card => {
+                container.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="w-10 h-10 rounded-xl ${card.color} flex items-center justify-center text-lg">
+                                    <i class="fa-solid ${card.icon}"></i>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    ${card.lock ? '<span class="text-[10px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded font-semibold"><i class="fa-solid fa-lock mr-0.5"></i>Nội bộ</span>' : '<span class="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-semibold">Công khai</span>'}
+                                    <button onclick="openQRModal('${card.title}', '${card.url}')" class="text-slate-400 hover:text-brand-600 p-1.5" title="Mã QR">
+                                        <i class="fa-solid fa-qrcode text-base"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm">${card.title}</h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">${card.desc}</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <button onclick="switchTab('${card.tab}')" class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center">
+                                Chi tiết <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                            </button>
+                            <button onclick="secureAccess('${card.url}', '${card.title}')" class="text-[11px] text-slate-500 hover:text-brand-600 flex items-center">
+                                <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Mở File
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function populateAdminForm() {
+            const c = appData.config;
+            const f = appData.ecoFund;
+            document.getElementById('cfg_driveRootUrl').value = c.driveRootUrl || '';
+            document.getElementById('cfg_scheduleSheetUrl').value = c.scheduleSheetUrl || '';
+            document.getElementById('cfg_teachingSheetUrl').value = c.teachingSheetUrl || '';
+            document.getElementById('cfg_studentFormUrl').value = c.studentFormUrl || '';
+            document.getElementById('cfg_studentFolderUrl').value = c.studentFolderUrl || '';
+            document.getElementById('cfg_ecoSheetUrl').value = c.ecoSheetUrl || '';
+
+            document.getElementById('cfg_paperKg').value = f.paperKg || 0;
+            document.getElementById('cfg_bottlesCount').value = f.bottlesCount || 0;
+            document.getElementById('cfg_donateMoney').value = f.donateMoney || 0;
+
+            document.getElementById('gh_owner').value = localStorage.getItem('gh_owner') || 'hanhanthuthuy-star';
+            document.getElementById('gh_repo').value = localStorage.getItem('gh_repo') || 'quan-ly-khoa-ktcn';
+            document.getElementById('gh_branch').value = localStorage.getItem('gh_branch') || 'main';
+            
+            const badge = document.getElementById('tokenStatusBadge');
+            const encryptedToken = localStorage.getItem('gh_token_encrypted');
+
+            if(decryptedAdminToken) {
+                document.getElementById('gh_token').value = decryptedAdminToken;
+                badge.className = "text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full";
+                badge.innerHTML = '<i class="fa-solid fa-lock text-emerald-600 mr-1"></i> Đang mở khóa trong RAM (AES-256)';
+            } else if(encryptedToken) {
+                badge.className = "text-[11px] font-semibold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-full";
+                badge.innerHTML = '<i class="fa-solid fa-shield text-brand-600 mr-1"></i> Đã mã hóa AES-GCM (Chưa giải mã)';
+            } else {
+                badge.className = "text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full";
+                badge.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i> Chưa lưu Token';
+            }
+        }
+
+        async function gatherDataFromAdminForm() {
+            appData.config.driveRootUrl = document.getElementById('cfg_driveRootUrl').value;
+            appData.config.scheduleSheetUrl = document.getElementById('cfg_scheduleSheetUrl').value;
+            appData.config.teachingSheetUrl = document.getElementById('cfg_teachingSheetUrl').value;
+            appData.config.studentFormUrl = document.getElementById('cfg_studentFormUrl').value;
+            appData.config.studentFolderUrl = document.getElementById('cfg_studentFolderUrl').value;
+            appData.config.ecoSheetUrl = document.getElementById('cfg_ecoSheetUrl').value;
+
+            appData.ecoFund.paperKg = parseFloat(document.getElementById('cfg_paperKg').value) || 0;
+            appData.ecoFund.bottlesCount = parseInt(document.getElementById('cfg_bottlesCount').value) || 0;
+            appData.ecoFund.donateMoney = parseFloat(document.getElementById('cfg_donateMoney').value) || 0;
+
+            const inputToken = document.getElementById('gh_token').value.trim();
+            if(inputToken && currentAdminPasswordInSession) {
+                decryptedAdminToken = inputToken;
+                const encrypted = await encryptData(inputToken, currentAdminPasswordInSession);
+                localStorage.setItem('gh_token_encrypted', encrypted);
+            }
+
+            localStorage.setItem('gh_owner', document.getElementById('gh_owner').value.trim());
+            localStorage.setItem('gh_repo', document.getElementById('gh_repo').value.trim());
+            localStorage.setItem('gh_branch', document.getElementById('gh_branch').value.trim() || 'main');
+            localStorage.setItem('khoa_ktcn_data', JSON.stringify(appData));
+        }
+
+        async function downloadJSONFile() {
+            await gatherDataFromAdminForm();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "data.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Đã tải xuống file data.json!");
+        }
+
+        async function syncToGitHubAPI() {
+            await gatherDataFromAdminForm();
+
+            const owner = document.getElementById('gh_owner').value.trim();
+            const repo = document.getElementById('gh_repo').value.trim();
+            const branch = document.getElementById('gh_branch').value.trim() || 'main';
+            const token = decryptedAdminToken || document.getElementById('gh_token').value.trim();
+
+            if(!owner || !repo || !token) {
+                showToast("Vui lòng điền Owner, Repo và GitHub Token!", false);
+                return;
+            }
+
+            const btn = document.getElementById('btnSyncGitHub');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Đang Đẩy Lên GitHub...`;
+            btn.disabled = true;
+
+            const filePath = 'data.json';
+            const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+
+            try {
+                let sha = null;
+                const getRes = await fetch(`${apiUrl}?ref=${branch}`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (getRes.ok) {
+                    const fileInfo = await getRes.json();
+                    sha = fileInfo.sha;
+                }
+
+                const jsonString = JSON.stringify(appData, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(jsonString)));
+
+                const bodyPayload = {
+                    message: `Cập nhật dữ liệu hệ thống số hóa [${new Date().toLocaleString('vi-VN')}]`,
+                    content: encodedContent,
+                    branch: branch
+                };
+                if(sha) bodyPayload.sha = sha;
+
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bodyPayload)
+                });
+
+                if(putRes.ok) {
+                    showToast("Đã đẩy dữ liệu mới lên GitHub thành công (Mã hóa an toàn)!");
+                    renderAll();
+                } else {
+                    const errData = await putRes.json();
+                    showToast(`Lỗi GitHub: ${errData.message || 'Kiểm tra lại quyền Token'}`, false);
+                }
+            } catch (error) {
+                showToast("Không thể kết nối tới GitHub API!", false);
+            } finally {
+                btn.innerHTML = `<i class="fa-brands fa-github mr-1.5 text-sm"></i> Đẩy Lên GitHub`;
+                btn.disabled = false;
+            }
+        }
+
+        async function handleAddSchedule(e) {
+            e.preventDefault();
+            const newEvent = {
+                day: document.getElementById('new_sch_day').value,
+                task: document.getElementById('new_sch_task').value,
+                owner: document.getElementById('new_sch_owner').value,
+                location: document.getElementById('new_sch_location').value,
+                status: "Chưa bắt đầu"
+            };
+
+            appData.schedules.unshift(newEvent);
+            await gatherDataFromAdminForm();
+            renderScheduleTable();
+            e.target.reset();
+            showToast("Đã thêm vào danh sách! Bấm 'Đẩy Lên GitHub' để lưu vĩnh viễn.");
+        }
+
+        function openQRModal(title, url) {
+            currentQRUrl = url;
+            document.getElementById('qrModalTitle').innerText = title;
+            const qrContainer = document.getElementById('qrcodeCanvas');
+            qrContainer.innerHTML = '';
+            
+            new QRCode(qrContainer, {
+                text: url,
+                width: 170,
+                height: 170,
+                colorDark: "#035485",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function closeQRModal() { document.getElementById('qrModal').classList.add('hidden'); }
+
+        function copyQRLink() {
+            if(currentQRUrl) {
+                navigator.clipboard.writeText(currentQRUrl).then(() => {
+                    showToast("Đã sao chép liên kết vào bộ nhớ tạm!");
+                });
+            }
+        }
+
+        function handleQuickSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if(!query.trim()) return;
+
+            if(query.includes('lịch') || query.includes('họp')) switchTab('schedule');
+            else if(query.includes('giảng') || query.includes('dạy')) switchTab('teaching');
+            else if(query.includes('hồ sơ') || query.includes('sinh viên')) switchTab('students');
+            else if(query.includes('quỹ') || query.includes('xanh')) switchTab('ecofund');
+            else if(query.includes('biểu') || query.includes('mẫu')) switchTab('templates');
+            else if(query.includes('bảo mật') || query.includes('mật khẩu')) switchTab('security');
+        }
+
+        function renderAll() {
+            renderUserAuthUI();
+            renderDashboardCards();
+            renderScheduleTable();
+            renderTeachingTable();
+            renderEcoFund();
+            renderTemplates();
+            renderSecurityChecklist();
+            populateAdminForm();
+        }
+
+        window.onload = function() {
+            loadDataFromGitHub();
+        };
+    </script>
+</body>
+</html>
