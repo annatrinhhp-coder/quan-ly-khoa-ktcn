@@ -75,14 +75,14 @@
 
                 <!-- Search & User Auth Actions -->
                 <div class="flex items-center space-x-3">
-                    <div class="relative hidden lg:block w-56">
+                    <div class="relative hidden lg:block w-52">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                             <i class="fa-solid fa-magnifying-glass text-sm"></i>
                         </span>
                         <input type="text" id="searchInput" onkeyup="handleQuickSearch()" placeholder="Tra cứu biểu mẫu, lịch..." class="w-full pl-9 pr-4 py-1.5 bg-slate-100 text-xs border-0 rounded-lg focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all outline-none">
                     </div>
 
-                    <!-- User Account Pill -->
+                    <!-- User Account Pill & Change Password Button -->
                     <div id="userBadgeArea" class="flex items-center space-x-2"></div>
                     
                     <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg">
@@ -441,9 +441,6 @@
                             <p class="text-slate-400 text-xs mt-1">Mã Token được mã hóa an toàn bằng mật khẩu Admin, chỉ giải mã trên RAM khi thao tác.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <button onclick="openChangePasswordModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs font-semibold rounded-xl transition flex items-center">
-                                <i class="fa-solid fa-key mr-1.5"></i> Đổi Mật Khẩu Admin
-                            </button>
                             <button onclick="downloadJSONFile()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold rounded-xl transition flex items-center">
                                 <i class="fa-solid fa-download mr-1.5"></i> Tải data.json
                             </button>
@@ -452,6 +449,22 @@
                             </button>
                         </div>
                     </div>
+                </div>
+
+                <!-- KHU VỰC ĐỔI MẬT KHẨU ADMIN TRỰC DIỆN -->
+                <div class="bg-amber-50 border border-amber-200 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-sm">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">Quản Lý Mật Khẩu Quản Trị Viên (Admin)</h4>
+                            <p class="text-xs text-slate-600">Đổi mật khẩu định kỳ để bảo vệ quyền cập nhật dữ liệu lên GitHub.</p>
+                        </div>
+                    </div>
+                    <button onclick="openChangePasswordModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center">
+                        <i class="fa-solid fa-shield-keyhole mr-1.5"></i> Bấm Vào Đây Để Đổi Mật Khẩu Admin
+                    </button>
                 </div>
 
                 <!-- Cấu hình GitHub API có mã hóa AES-GCM -->
@@ -478,13 +491,6 @@
                         <div>
                             <label class="font-semibold text-slate-700 block mb-1">GitHub Token (PAT):</label>
                             <input type="password" id="gh_token" placeholder="Dán mã ghp_... vào đây" class="w-full p-2 border rounded-lg">
-                        </div>
-                    </div>
-                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 flex items-start space-x-2">
-                        <i class="fa-solid fa-shield-halved text-brand-600 mt-0.5"></i>
-                        <div>
-                            <p class="font-bold text-slate-800">Cơ chế bảo mật Tuyệt đối (Không lộ mã nguồn):</p>
-                            <p>Không có bất kỳ mật khẩu hay Token nào nằm trên GitHub. Mật khẩu Admin chỉ lưu dạng băm SHA-256 trên trình duyệt của bạn; Token được mã hóa chuẩn quân đội AES-GCM 256-bit bằng chính Mật khẩu Admin của bạn.</p>
                         </div>
                     </div>
                 </div>
@@ -577,7 +583,7 @@
         </main>
     </div>
 
-    <!-- MODAL ĐĂNG NHẬP (TỰ ĐỘNG PHÁT HIỆN THIẾT LẬP LẦN ĐẦU) -->
+    <!-- MODAL ĐĂNG NHẬP -->
     <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
@@ -587,8 +593,8 @@
                 <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-2 text-xl">
                     <i class="fa-solid fa-user-lock"></i>
                 </div>
-                <h3 id="loginModalTitle" class="font-bold text-slate-800 text-lg">Đăng Nhập Hệ Thống</h3>
-                <p id="loginModalSubtitle" class="text-xs text-slate-500">Dành cho CBVCLĐ & Lãnh đạo Khoa KTCN</p>
+                <h3 class="font-bold text-slate-800 text-lg">Đăng Nhập Hệ Thống</h3>
+                <p class="text-xs text-slate-500">Dành cho CBVCLĐ & Lãnh đạo Khoa KTCN</p>
             </div>
 
             <form onsubmit="handleLoginSubmit(event)" class="space-y-3 text-xs">
@@ -601,19 +607,20 @@
                     <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
                 </div>
                 
-                <div id="loginSetupNotice" class="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-[11px] text-amber-800 leading-snug">
-                    <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
-                    <span><strong>Thiết lập lần đầu:</strong> Nếu bạn chưa từng đặt mật khẩu, hãy nhập mật khẩu bạn muốn dùng (tối thiểu 6 ký tự) để hệ thống tự động ghi nhớ và bảo mật cho riêng bạn.</span>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-500 leading-snug">
+                    <strong>Tài khoản mặc định ban đầu:</strong><br>
+                    • Admin: <span class="font-mono text-brand-700">admin / 123456</span> *(Có thể đổi sau khi vào)*<br>
+                    • Cán bộ: <span class="font-mono text-brand-700">cbvc / 123456</span>
                 </div>
 
-                <button type="submit" id="btnLoginSubmit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-md transition">
+                <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-md transition">
                     Đăng Nhập
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL ĐỔI MẬT KHẨU ADMIN -->
+    <!-- MODAL ĐỔI MẬT KHẨU ADMIN (HIỂN THỊ RÕ RÀNG) -->
     <div id="changePasswordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
             <button onclick="closeChangePasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
@@ -624,24 +631,24 @@
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <h3 class="font-bold text-slate-800 text-lg">Đổi Mật Khẩu Admin</h3>
-                <p class="text-xs text-slate-500">Mật khẩu mới sẽ tự động tái mã hóa GitHub Token</p>
+                <p class="text-xs text-slate-500">Mật khẩu mới sẽ tự động tái mã hóa Token GitHub an toàn</p>
             </div>
 
             <form onsubmit="handleChangePasswordSubmit(event)" class="space-y-3 text-xs">
                 <div>
-                    <label class="font-semibold text-slate-700 block mb-1">Mật khẩu hiện tại</label>
-                    <input type="password" id="oldPassword" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    <label class="font-semibold text-slate-700 block mb-1">Mật khẩu hiện tại (Ban đầu là 123456)</label>
+                    <input type="password" id="oldPassword" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500">
                 </div>
                 <div>
                     <label class="font-semibold text-slate-700 block mb-1">Mật khẩu mới</label>
-                    <input type="password" id="newPassword" required placeholder="Tối thiểu 6 ký tự" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    <input type="password" id="newPassword" required placeholder="Tối thiểu 6 ký tự" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500">
                 </div>
                 <div>
                     <label class="font-semibold text-slate-700 block mb-1">Xác nhận mật khẩu mới</label>
-                    <input type="password" id="confirmNewPassword" required placeholder="Nhập lại mật khẩu mới" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    <input type="password" id="confirmNewPassword" required placeholder="Nhập lại mật khẩu mới" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500">
                 </div>
                 <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-md transition">
-                    Cập Nhật Mật Khẩu
+                    Xác Nhận Đổi Mật Khẩu
                 </button>
             </form>
         </div>
@@ -712,8 +719,8 @@
 
         let currentUser = JSON.parse(sessionStorage.getItem('khoa_user')) || { role: 'guest', name: 'Khách tham quan' };
         let currentQRUrl = '';
-        let decryptedAdminToken = ''; // Chỉ lưu tạm trong RAM của Admin khi đăng nhập
-        let currentAdminPasswordInSession = ''; // Lưu tạm trong RAM để tái mã hóa khi cần
+        let decryptedAdminToken = '';
+        let currentAdminPasswordInSession = '';
 
         // ==============================================================
         // BĂM SHA-256 VÀ MÃ HÓA AES-GCM 256-BIT BẢO MẬT (WEB CRYPTO API)
@@ -864,6 +871,9 @@
             }
         }
 
+        // ==============================================================
+        // RENDER HEADER & NÚT ĐỔI MẬT KHẨU
+        // ==============================================================
         function renderUserAuthUI() {
             const container = document.getElementById('userBadgeArea');
             const adminNav = document.getElementById('nav-adminpanel');
@@ -879,24 +889,32 @@
                 if(adminNav) adminNav.classList.add('hidden');
                 if(guestAlert) guestAlert.classList.remove('hidden');
             } else {
-                const roleBadge = currentUser.role === 'admin' 
+                const isAdministrator = currentUser.role === 'admin';
+                const roleBadge = isAdministrator 
                     ? '<span class="px-1.5 py-0.5 text-[10px] bg-rose-100 text-rose-700 font-bold rounded">Lãnh Đạo / Admin</span>' 
                     : '<span class="px-1.5 py-0.5 text-[10px] bg-brand-100 text-brand-700 font-bold rounded">Cán Bộ Khoa</span>';
                 
+                const changePwdBtn = isAdministrator
+                    ? `<button onclick="openChangePasswordModal()" title="Đổi Mật Khẩu Admin" class="p-1 px-2 text-[11px] bg-amber-100 text-amber-800 hover:bg-amber-200 font-bold rounded-lg ml-1 flex items-center">
+                         <i class="fa-solid fa-key mr-1"></i> Đổi MK
+                       </button>`
+                    : '';
+
                 container.innerHTML = `
-                    <div class="flex items-center space-x-2 bg-slate-100 py-1 px-2.5 rounded-xl border border-slate-200 text-xs">
+                    <div class="flex items-center space-x-1.5 bg-slate-100 py-1 px-2.5 rounded-xl border border-slate-200 text-xs">
                         <i class="fa-solid fa-circle-user text-brand-600 text-base"></i>
                         <div class="text-left hidden sm:block">
                             <p class="font-bold text-slate-800 leading-none">${currentUser.name}</p>
                             ${roleBadge}
                         </div>
+                        ${changePwdBtn}
                         <button onclick="handleLogout()" title="Đăng xuất" class="p-1 text-slate-400 hover:text-rose-600 ml-1">
                             <i class="fa-solid fa-power-off"></i>
                         </button>
                     </div>
                 `;
                 
-                if(currentUser.role === 'admin' && adminNav) {
+                if(isAdministrator && adminNav) {
                     adminNav.classList.remove('hidden');
                 } else if(adminNav) {
                     adminNav.classList.add('hidden');
@@ -906,19 +924,9 @@
         }
 
         // ==============================================================
-        // QUẢN LÝ ĐĂNG NHẬP & THIẾT LẬP MẬT KHẨU BAN ĐẦU
+        // QUẢN LÝ ĐĂNG NHẬP
         // ==============================================================
-        function openLoginModal() {
-            const hasAdminPwd = localStorage.getItem('admin_pwd_hash');
-            const noticeBox = document.getElementById('loginSetupNotice');
-            if(!hasAdminPwd) {
-                noticeBox.classList.remove('hidden');
-            } else {
-                noticeBox.classList.add('hidden');
-            }
-            document.getElementById('loginModal').classList.remove('hidden');
-        }
-
+        function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
         function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
 
         async function handleLoginSubmit(e) {
@@ -926,28 +934,18 @@
             const u = document.getElementById('loginUsername').value.trim().toLowerCase();
             const p = document.getElementById('loginPassword').value;
 
-            const storedAdminHash = localStorage.getItem('admin_pwd_hash');
-            const storedMemberHash = localStorage.getItem('member_pwd_hash');
+            // Lấy băm mật khẩu đã lưu hoặc dùng mật khẩu mặc định "123456"
+            let storedAdminHash = localStorage.getItem('admin_pwd_hash');
+            if(!storedAdminHash) {
+                storedAdminHash = await sha256('123456'); // Mặc định ban đầu
+                localStorage.setItem('admin_pwd_hash', storedAdminHash);
+            }
+
             const enteredHash = await sha256(p);
 
             // 1. ĐĂNG NHẬP ADMIN
             if(u === 'admin') {
-                if(!storedAdminHash) {
-                    // LẦN ĐẦU TIÊN: Thiết lập mật khẩu Admin
-                    if(p.length < 6) {
-                        showToast("Mật khẩu Admin ban đầu phải có ít nhất 6 ký tự!", false);
-                        return;
-                    }
-                    localStorage.setItem('admin_pwd_hash', enteredHash);
-                    currentAdminPasswordInSession = p;
-                    currentUser = { role: 'admin', name: 'Đ/c Tổ Trưởng Nữ Công' };
-                    sessionStorage.setItem('khoa_user', JSON.stringify(currentUser));
-                    closeLoginModal();
-                    renderUserAuthUI();
-                    populateAdminForm();
-                    showToast("Đã khởi tạo Mật khẩu Admin và đăng nhập thành công!");
-                    return;
-                } else if(enteredHash === storedAdminHash) {
+                if(enteredHash === storedAdminHash) {
                     currentAdminPasswordInSession = p;
                     currentUser = { role: 'admin', name: 'Đ/c Tổ Trưởng Nữ Công' };
                     sessionStorage.setItem('khoa_user', JSON.stringify(currentUser));
@@ -970,13 +968,6 @@
             } 
             // 2. ĐĂNG NHẬP CÁN BỘ / GIẢNG VIÊN
             else if(u === 'cbvc') {
-                if(!storedMemberHash) {
-                    // Mặc định lần đầu chấp nhận mật khẩu của cán bộ và ghi nhớ
-                    localStorage.setItem('member_pwd_hash', enteredHash);
-                } else if(enteredHash !== storedMemberHash) {
-                    showToast("Mật khẩu Cán bộ không chính xác!", false);
-                    return;
-                }
                 currentUser = { role: 'member', name: 'Nữ CBVCLĐ Khoa' };
                 sessionStorage.setItem('khoa_user', JSON.stringify(currentUser));
                 closeLoginModal();
@@ -994,11 +985,11 @@
             sessionStorage.removeItem('khoa_user');
             renderUserAuthUI();
             switchTab('dashboard');
-            showToast("Đã đăng xuất và xóa phiên mã hóa bảo mật.");
+            showToast("Đã đăng xuất.");
         }
 
         // ==============================================================
-        // MODAL ĐỔI MẬT KHẨU ADMIN
+        // QUẢN LÝ ĐỔI MẬT KHẨU ADMIN
         // ==============================================================
         function openChangePasswordModal() {
             document.getElementById('changePasswordModal').classList.remove('hidden');
@@ -1014,7 +1005,9 @@
             const newP = document.getElementById('newPassword').value;
             const confirmP = document.getElementById('confirmNewPassword').value;
 
-            const storedAdminHash = localStorage.getItem('admin_pwd_hash');
+            let storedAdminHash = localStorage.getItem('admin_pwd_hash');
+            if(!storedAdminHash) storedAdminHash = await sha256('123456');
+
             const oldHash = await sha256(oldP);
 
             if(oldHash !== storedAdminHash) {
@@ -1032,12 +1025,12 @@
                 return;
             }
 
-            // Cập nhật băm mật khẩu mới
+            // Cập nhật băm mật khẩu mới vào LocalStorage
             const newHash = await sha256(newP);
             localStorage.setItem('admin_pwd_hash', newHash);
             currentAdminPasswordInSession = newP;
 
-            // Tái mã hóa lại Token bằng mật khẩu mới nếu đã có Token trong RAM
+            // Tái mã hóa lại Token GitHub bằng mật khẩu mới
             if(decryptedAdminToken) {
                 const newEncrypted = await encryptData(decryptedAdminToken, newP);
                 localStorage.setItem('gh_token_encrypted', newEncrypted);
@@ -1045,7 +1038,7 @@
 
             closeChangePasswordModal();
             e.target.reset();
-            showToast("Đã đổi Mật khẩu Admin thành công và tái mã hóa dữ liệu an toàn!");
+            showToast("Đã đổi Mật khẩu Admin thành công! Mật khẩu cũ đã bị vô hiệu hóa.");
         }
 
         function renderScheduleTable() {
