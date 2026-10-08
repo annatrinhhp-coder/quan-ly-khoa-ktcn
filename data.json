@@ -9,9 +9,9 @@
     "templateFolderUrl": "https://drive.google.com/drive/folders/06_Van_ban_hanh_chinh"
   },
   "ecoFund": {
-    "paperKg": 140,
+    "paperKg": 200,
     "paperPrice": 5000,
-    "bottlesCount": 1750,
+    "bottlesCount": 1800,
     "bottlePrice": 500,
     "donateMoney": 2500000
   },
