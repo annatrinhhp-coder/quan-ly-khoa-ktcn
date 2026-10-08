@@ -1,11 +1,11 @@
 {
   "config": {
-    "driveRootUrl": "https://drive.google.com/drive/folders/Khoa_KTCN_HoSoSo_2026",
-    "scheduleSheetUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_EXAMPLE_SCHEDULE/pubhtml",
-    "teachingSheetUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_EXAMPLE_TEACHING/pubhtml",
-    "studentFormUrl": "https://forms.google.com/d/e/1FAIpQLSc_FORM_HSSV_EXAMPLE/viewform",
-    "studentFolderUrl": "https://drive.google.com/drive/folders/03_Ho_so_HSSV_SECURE",
-    "ecoSheetUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_EXAMPLE_ECOFUND/pubhtml",
+    "driveRootUrl": "https://drive.google.com/drive/folders/18OX4RifjeRk3qow2G1d6BoPklAr2bf9e?usp=drive_link",
+    "scheduleSheetUrl": "https://drive.google.com/drive/folders/1xI30U0Z7ZW-cC2TsI5TmppJb9LNXGMRk?usp=drive_link",
+    "teachingSheetUrl": "https://drive.google.com/drive/folders/1Z5PY5aor0XZoFYyWJ0mrtKIT12Rf1hI4?usp=drive_link",
+    "studentFormUrl": "https://drive.google.com/drive/folders/1LQUi6s-_NtQatKS8NL_An-vTBK66TGWx?usp=drive_link",
+    "studentFolderUrl": "https://drive.google.com/drive/folders/1N76ngKd5HPjJIjaWwTEvD83IIl3rlHKX?usp=drive_link",
+    "ecoSheetUrl": "https://drive.google.com/drive/folders/1-AXyowva4wZTAqNskHczhkPkuBlZO0vx?usp=drive_link",
     "templateFolderUrl": "https://drive.google.com/drive/folders/06_Van_ban_hanh_chinh"
   },
   "ecoFund": {
